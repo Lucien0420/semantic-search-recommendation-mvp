@@ -1,0 +1,22 @@
+[project]
+name = "semantic-search-recommendation-mvp"
+version = "0.1.0"
+description = "Semantic search and content-based recommendations MVP (FastAPI, SQLite, Chroma)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.110,<1",
+  "python-multipart>=0.0.9,<1",
+  "uvicorn[standard]>=0.27,<1",
+  "sqlalchemy[asyncio]>=2.0,<3",
+  "aiosqlite>=0.19,<1",
+  "pydantic-settings>=2.0,<3",
+  "chromadb>=0.5,<1",
+  "httpx>=0.27,<1",
+  "pyjwt>=2.8,<3",
+  "bcrypt>=4.1,<5",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

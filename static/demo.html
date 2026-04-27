@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Semantic Search &amp; Recommend — Demo</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --border: #2d3a4d;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #5b9fd4;
+      --ok: #6bcb77;
+      --err: #e07a7a;
+      --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+      --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+    header h1 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+    header p { margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--muted); }
+    main { max-width: 52rem; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+    section h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.2rem; }
+    input, textarea, button {
+      font: inherit;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      padding: 0.45rem 0.6rem;
+      width: 100%;
+      max-width: 100%;
+    }
+    textarea { min-height: 5rem; resize: vertical; }
+    button {
+      cursor: pointer;
+      width: auto;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #2a4a66;
+      border-color: var(--accent);
+      color: #fff;
+    }
+    button:hover { filter: brightness(1.08); }
+    button.secondary {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    .row { display: grid; gap: 0.6rem; margin-bottom: 0.6rem; }
+    @media (min-width: 560px) {
+      .row.cols-2 { grid-template-columns: 1fr 1fr; }
+    }
+    pre.out {
+      margin: 0.75rem 0 0;
+      padding: 0.75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      overflow: auto;
+      max-height: 18rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    pre.out.ok { border-color: #2d5a3d; }
+    pre.out.err { border-color: #6b3030; color: var(--err); }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .badge.on { border-color: var(--ok); color: var(--ok); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Semantic search &amp; recommendation MVP — browser demo</h1>
+    <p>Same-origin API calls (start <code>uvicorn main:app --reload</code> first). JWT in sessionStorage.</p>
+    <p><span id="authBadge" class="badge">Signed out</span></p>
+  </header>
+  <main>
+    <section>
+      <h2>Register</h2>
+      <form id="formRegister" class="row cols-2">
+        <div>
+          <label for="regEmail">Email</label>
+          <input id="regEmail" type="email" autocomplete="email" required />
+        </div>
+        <div>
+          <label for="regPass">Password (≥8 characters)</label>
+          <input id="regPass" type="password" autocomplete="new-password" required minlength="8" />
+        </div>
+      </form>
+      <button type="submit" form="formRegister">POST /auth/register</button>
+      <pre id="outRegister" class="out" hidden></pre>
+    </section>
+
+    <section>
+      <h2>Sign in</h2>
+      <form id="formLogin" class="row cols-2">
+        <div>
+          <label for="loginEmail">Email (used as username)</label>
+          <input id="loginEmail" type="email" autocomplete="username" required />
+        </div>
+        <div>
+          <label for="loginPass">Password</label>
+          <input id="loginPass" type="password" autocomplete="current-password" required />
+        </div>
+      </form>
+      <button type="submit" form="formLogin">POST /auth/token</button>
+      <button type="button" class="secondary" id="btnLogout">Clear token</button>
+      <pre id="outLogin" class="out" hidden></pre>
+    </section>
+
+    <section>
+      <h2>Current user</h2>
+      <button type="button" id="btnMe">GET /auth/me</button>
+      <pre id="outMe" class="out" hidden></pre>
+    </section>
+
+    <section>
+      <h2>Create post</h2>
+      <form id="formPost">
+        <div class="row">
+          <label for="postContent">Content</label>
+          <textarea id="postContent" required placeholder="Post body…"></textarea>
+        </div>
+        <div class="row cols-2">
+          <div>
+            <label for="postTags">tags (comma-separated, optional)</label>
+            <input id="postTags" type="text" placeholder="python, ml" />
+          </div>
+          <div>
+            <label for="postType">content_type</label>
+            <input id="postType" type="text" value="text" maxlength="32" />
+          </div>
+        </div>
+      </form>
+      <button type="submit" form="formPost">POST /posts/</button>
+      <pre id="outPost" class="out" hidden></pre>
+    </section>
+
+    <section>
+      <h2>Semantic search (public)</h2>
+      <form id="formSearch" class="row cols-2">
+        <div>
+          <label for="searchQ">q</label>
+          <input id="searchQ" type="text" required placeholder="Query…" />
+        </div>
+        <div>
+          <label for="searchLimit">limit / min_score</label>
+          <div class="row cols-2" style="margin:0">
+            <input id="searchLimit" type="number" value="10" min="1" max="100" />
+            <input id="searchMin" type="number" value="0" min="0" max="1" step="0.01" />
+          </div>
+        </div>
+      </form>
+      <button type="submit" form="formSearch">GET /search/</button>
+      <pre id="outSearch" class="out" hidden></pre>
+    </section>
+
+    <section>
+      <h2>Like</h2>
+      <form id="formLike" class="row">
+        <div>
+          <label for="likeId">post_id</label>
+          <input id="likeId" type="number" min="1" required placeholder="1" />
+        </div>
+      </form>
+      <button type="submit" form="formLike">POST /posts/{id}/like</button>
+      <pre id="outLike" class="out" hidden></pre>
+    </section>
+
+    <section>
+      <h2>Recommend (needs at least one liked post for signal)</h2>
+      <form id="formRec" class="row cols-2">
+        <div>
+          <label for="recLimit">limit</label>
+          <input id="recLimit" type="number" value="10" min="1" max="100" />
+        </div>
+        <div>
+          <label for="recMin">min_score</label>
+          <input id="recMin" type="number" value="0" min="0" max="1" step="0.01" />
+        </div>
+      </form>
+      <button type="submit" form="formRec">GET /recommend/</button>
+      <pre id="outRec" class="out" hidden></pre>
+    </section>
+  </main>
+
+  <script>
+(function () {
+  "use strict";
+
+  function showPre(el, data, ok) {
+    el.hidden = false;
+    el.classList.remove("ok", "err");
+    el.classList.add(ok ? "ok" : "err");
+    el.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+  }
+
+  function getToken() {
+    return sessionStorage.getItem("access_token");
+  }
+
+  function setAuthBadge() {
+    var b = document.getElementById("authBadge");
+    var t = getToken();
+    if (t) {
+      b.textContent = "Signed in (sessionStorage)";
+      b.classList.add("on");
+    } else {
+      b.textContent = "Signed out";
+      b.classList.remove("on");
+    }
+  }
+
+  async function parseResponse(r) {
+    var text = await r.text();
+    if (!text) return null;
+    try {
+      return JSON.parse(text);
+    } catch (_) {
+      return text;
+    }
+  }
+
+  async function api(path, opts) {
+    opts = opts || {};
+    var headers = Object.assign({}, opts.headers || {});
+    var body = opts.body;
+    if (body && typeof body === "object" && !(body instanceof FormData) && !(body instanceof URLSearchParams)) {
+      headers["Content-Type"] = "application/json";
+      body = JSON.stringify(body);
+    }
+    var token = getToken();
+    if (token) headers["Authorization"] = "Bearer " + token;
+    var r = await fetch(path, {
+      method: opts.method || "GET",
+      headers: headers,
+      body: body
+    });
+    var data = await parseResponse(r);
+    if (!r.ok) {
+      var msg = "HTTP " + r.status;
+      if (data && typeof data === "object" && "detail" in data) {
+        msg += "\n" + JSON.stringify(data.detail, null, 2);
+      } else if (typeof data === "string") msg += "\n" + data;
+      else msg += "\n" + JSON.stringify(data, null, 2);
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  document.getElementById("formRegister").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var out = document.getElementById("outRegister");
+    try {
+      var data = await api("/auth/register", {
+        method: "POST",
+        body: {
+          email: document.getElementById("regEmail").value.trim(),
+          password: document.getElementById("regPass").value
+        }
+      });
+      showPre(out, data, true);
+    } catch (err) {
+      showPre(out, err.message, false);
+    }
+  });
+
+  document.getElementById("formLogin").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var out = document.getElementById("outLogin");
+    try {
+      var fd = new URLSearchParams();
+      fd.set("username", document.getElementById("loginEmail").value.trim().toLowerCase());
+      fd.set("password", document.getElementById("loginPass").value);
+      fd.set("grant_type", "password");
+      var data = await api("/auth/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: fd
+      });
+      if (data && data.access_token) {
+        sessionStorage.setItem("access_token", data.access_token);
+        setAuthBadge();
+      }
+      showPre(out, data, true);
+    } catch (err) {
+      showPre(out, err.message, false);
+    }
+  });
+
+  document.getElementById("btnLogout").addEventListener("click", function () {
+    sessionStorage.removeItem("access_token");
+    setAuthBadge();
+    var out = document.getElementById("outLogin");
+    out.hidden = false;
+    out.classList.remove("ok", "err");
+    out.classList.add("ok");
+    out.textContent = "Cleared access_token";
+  });
+
+  document.getElementById("btnMe").addEventListener("click", async function () {
+    var out = document.getElementById("outMe");
+    try {
+      var data = await api("/auth/me");
+      showPre(out, data, true);
+    } catch (err) {
+      showPre(out, err.message, false);
+    }
+  });
+
+  document.getElementById("formPost").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var out = document.getElementById("outPost");
+    var tagsRaw = document.getElementById("postTags").value.trim();
+    var tags = tagsRaw ? tagsRaw.split(",").map(function (s) { return s.trim(); }).filter(Boolean) : [];
+    try {
+      var data = await api("/posts/", {
+        method: "POST",
+        body: {
+          content: document.getElementById("postContent").value,
+          tags: tags,
+          content_type: document.getElementById("postType").value.trim() || "text"
+        }
+      });
+      showPre(out, data, true);
+    } catch (err) {
+      showPre(out, err.message, false);
+    }
+  });
+
+  document.getElementById("formSearch").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var out = document.getElementById("outSearch");
+    var q = document.getElementById("searchQ").value;
+    var limit = document.getElementById("searchLimit").value;
+    var minScore = document.getElementById("searchMin").value;
+    var qs = new URLSearchParams({ q: q, limit: limit, min_score: minScore });
+    try {
+      var data = await api("/search/?" + qs.toString());
+      showPre(out, data, true);
+    } catch (err) {
+      showPre(out, err.message, false);
+    }
+  });
+
+  document.getElementById("formLike").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var out = document.getElementById("outLike");
+    var id = document.getElementById("likeId").value;
+    try {
+      var data = await api("/posts/" + encodeURIComponent(id) + "/like", { method: "POST" });
+      showPre(out, data, true);
+    } catch (err) {
+      showPre(out, err.message, false);
+    }
+  });
+
+  document.getElementById("formRec").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var out = document.getElementById("outRec");
+    var limit = document.getElementById("recLimit").value;
+    var minScore = document.getElementById("recMin").value;
+    var qs = new URLSearchParams({ limit: limit, min_score: minScore });
+    try {
+      var data = await api("/recommend/?" + qs.toString());
+      showPre(out, data, true);
+    } catch (err) {
+      showPre(out, err.message, false);
+    }
+  });
+
+  setAuthBadge();
+})();
+  </script>
+</body>
+</html>
