@@ -25,13 +25,17 @@
 ```mermaid
 flowchart LR
   A[POST /posts/] --> B[(SQLite)]
-  A --> C[背景: 嵌入]
+  A --> C[BackgroundTasks：嵌入並寫入 Chroma]
   C --> D[(Chroma)]
   E[GET /search/] --> F[查詢擴寫]
-  F --> C
+  F --> S[請求內：嵌入與向量檢索]
+  S --> D
+  S --> B
   G[按讚] --> B
-  H[GET /recommend/] --> C
-  H --> B
+  H[GET /recommend/] --> B
+  H --> R[重心向量與相似檢索]
+  R --> D
+  R --> B
 ```
 
 ---
@@ -128,9 +132,19 @@ Invoke-RestMethod -Headers @{ Authorization = "Bearer $tok" } "http://127.0.0.1:
 
 ### 截圖與示範錄影
 
-| 後端（例如 `/docs`） | 資料庫（SQLite） | 終端機 |
-|:---:|:---:|:---:|
-| ![後端／API 文件](./docs/backend.png) | ![SQLite／資料](./docs/db.png) | ![終端機操作](./docs/terminal.png) |
+圖片改為**直向、接近全寬**（不用三欄表格），避免 GitHub 把寬螢幕截圖壓進窄欄而變得很小。
+
+#### 後端（例如 `/docs`）
+
+![後端／API 文件](./docs/backend.png)
+
+#### 資料庫（SQLite）
+
+![SQLite／資料](./docs/db.png)
+
+#### 終端機
+
+![終端機操作](./docs/terminal.png)
 
 **螢幕錄影（MP4，約 24 MB）：** [`docs/demo.mp4`](./docs/demo.mp4) — 可在 GitHub 檔案預覽開啟，或 clone 後在本機播放。
 

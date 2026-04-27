@@ -23,13 +23,17 @@ Service boundaries (`embedding_service`, `vector_db`, `search_service`, `recomme
 ```mermaid
 flowchart LR
   A[POST /posts/] --> B[(SQLite)]
-  A --> C[Background: embed]
+  A --> C[BackgroundTasks: embed to Chroma]
   C --> D[(Chroma)]
   E[GET /search/] --> F[expand query]
-  F --> C
+  F --> S[Request: embed + Chroma query]
+  S --> D
+  S --> B
   G[like posts] --> B
-  H[GET /recommend/] --> C
-  H --> B
+  H[GET /recommend/] --> B
+  H --> R[Centroid + Chroma query]
+  R --> D
+  R --> B
 ```
 
 ---
@@ -126,9 +130,19 @@ Interactive docs: **`/docs`** (Swagger UI).
 
 ### Screenshots & demo recording
 
-| Backend (e.g. `/docs`) | Database (SQLite) | Terminal |
-|:---:|:---:|:---:|
-| ![Backend / API docs](./docs/backend.png) | ![SQLite / data](./docs/db.png) | ![Terminal session](./docs/terminal.png) |
+Images are **stacked full-width** (not a 3-column table) so GitHub does not shrink wide screenshots to a narrow cell.
+
+#### Backend (e.g. `/docs`)
+
+![Backend / API docs](./docs/backend.png)
+
+#### Database (SQLite)
+
+![SQLite / data](./docs/db.png)
+
+#### Terminal
+
+![Terminal session](./docs/terminal.png)
 
 **Screen recording (MP4, ~24 MB):** [`docs/demo.mp4`](./docs/demo.mp4) — open in the GitHub file view or locally after clone.
 
