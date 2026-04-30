@@ -144,7 +144,7 @@ Images are **stacked full-width** (not a 3-column table) so GitHub does not shri
 
 ![Terminal session](./docs/terminal.png)
 
-**Demo video (YouTube):** [Watch on YouTube](https://youtu.be/IKeLrpIs2no) — screen recording with subtitles and highlights. (Optional: keep `docs/mvpdemo.mp4` locally; it is gitignored.)
+**Demo video (YouTube):** [Watch on YouTube](https://youtu.be/IKeLrpIs2no) — screen recording with subtitles and highlights.
 
 ---
 

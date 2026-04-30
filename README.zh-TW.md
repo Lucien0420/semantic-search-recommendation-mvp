@@ -146,7 +146,7 @@ Invoke-RestMethod -Headers @{ Authorization = "Bearer $tok" } "http://127.0.0.1:
 
 ![終端機操作](./docs/terminal.png)
 
-**示範影片（YouTube）：** [在 YouTube 觀看](https://youtu.be/IKeLrpIs2no) — 含字幕與重點標示。（可選：本機保留 `docs/mvpdemo.mp4`；已列入 gitignore，不會上傳。）
+**示範影片（YouTube）：** [在 YouTube 觀看](https://youtu.be/IKeLrpIs2no) — 含字幕與重點標示。
 
 ---
 

@@ -1,9 +1,9 @@
 # Documentation assets
 
-Files in this folder (except `private/`) are referenced from the root [README.md](../README.md): screenshots and a local demo recording.
+Files in this folder (except `private/`) are referenced from the root [README.md](../README.md): screenshots; the demo is linked there (YouTube).
 
 - **`backend.png`**, **`db.png`**, **`terminal.png`** — static screenshots from a local run.
-- **Demo video** — link on the root [README.md](../README.md) (YouTube). Optional local file **`mvpdemo.mp4`** in this folder is gitignored and not published.
+- **Demo** — watch on YouTube via the link in the root [README.md](../README.md).
 
 ## Local-only notes
 
