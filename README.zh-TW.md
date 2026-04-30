@@ -146,7 +146,7 @@ Invoke-RestMethod -Headers @{ Authorization = "Bearer $tok" } "http://127.0.0.1:
 
 ![終端機操作](./docs/terminal.png)
 
-**螢幕錄影（MP4，約 24 MB）：** [`docs/demo.mp4`](./docs/demo.mp4) — 可在 GitHub 檔案預覽開啟，或 clone 後在本機播放。
+**螢幕錄影（MP4，約 44 MB）：** [`docs/mvpdemo.mp4`](./docs/mvpdemo.mp4) — 可在 GitHub 檔案預覽開啟，或 clone 後在本機播放。
 
 ---
 

@@ -144,7 +144,7 @@ Images are **stacked full-width** (not a 3-column table) so GitHub does not shri
 
 ![Terminal session](./docs/terminal.png)
 
-**Screen recording (MP4, ~24 MB):** [`docs/demo.mp4`](./docs/demo.mp4) — open in the GitHub file view or locally after clone.
+**Screen recording (MP4, ~44 MB):** [`docs/mvpdemo.mp4`](./docs/mvpdemo.mp4) — open in the GitHub file view or locally after clone.
 
 ---
 
