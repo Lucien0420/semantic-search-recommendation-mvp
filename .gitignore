@@ -19,3 +19,6 @@ logs/*.log
 
 # Local-only notes (not for GitHub)
 docs/private/
+
+# Local demo video (README links to YouTube; do not push large MP4)
+docs/mvpdemo.mp4

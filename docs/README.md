@@ -3,7 +3,7 @@
 Files in this folder (except `private/`) are referenced from the root [README.md](../README.md): screenshots and a local demo recording.
 
 - **`backend.png`**, **`db.png`**, **`terminal.png`** — static screenshots from a local run.
-- **`mvpdemo.mp4`** — screen recording with subtitles / highlights (~44 MB).
+- **Demo video** — link on the root [README.md](../README.md) (YouTube). Optional local file **`mvpdemo.mp4`** in this folder is gitignored and not published.
 
 ## Local-only notes
 

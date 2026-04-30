@@ -146,7 +146,7 @@ Invoke-RestMethod -Headers @{ Authorization = "Bearer $tok" } "http://127.0.0.1:
 
 ![終端機操作](./docs/terminal.png)
 
-**螢幕錄影（MP4，約 44 MB）：** [`docs/mvpdemo.mp4`](./docs/mvpdemo.mp4) — 可在 GitHub 檔案預覽開啟，或 clone 後在本機播放。
+**示範影片（YouTube）：** [在 YouTube 觀看](https://www.youtube.com/watch?v=REPLACE_WITH_YOUR_VIDEO_ID) — 含字幕與重點標示。（可選：本機保留 `docs/mvpdemo.mp4`；已列入 gitignore，不會上傳。）
 
 ---
 
